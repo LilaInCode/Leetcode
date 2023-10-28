@@ -3,41 +3,24 @@
  * @param {number} target
  * @return {number[][]}
  */
-var combinationSum = function(candidates, target) {
-
-    const memo = {};
+var combinationSum = function(candidates, target,memo={}) {
+    let result=[];
+    candidates.sort((a, b) => a - b); 
+    if(target in memo) return memo[target];
+    if (target===0) return [[]];
+    if(target< 0) return [];
     
-    function backtrack(remaining, start) {
-        if (remaining === 0) {
-            // Base case: found a combination
-            return [[]];
+    for(let i of candidates){
+         if (i > target) break; 
+        const reminder=target-i;
+        const reminderResult=combinationSum(candidates,reminder,memo);
+        if (reminderResult!=[]) {
+        result=result.concat(reminderResult.map(a=>[...a,i].sort((a, b) => a - b)));
+        result = Array.from(new Set(result.map(JSON.stringify))).map(JSON.parse);
+                
+       
         }
-        if (remaining < 0) {
-            // Base case: exceeded the target sum
-            return null;
-        }
-        
-        const memoKey = `${remaining}-${start}`;
-        if (memoKey in memo) return memo[memoKey];
-        
-        let result = [];
-        for (let i = start; i < candidates.length; i++) {
-            const remainder = remaining - candidates[i];
-            const remainderResult = backtrack(remainder, i);
-            if (remainderResult !== null) {
-                // For each combination in remainderResult, add candidates[i]
-                for (const combination of remainderResult) {
-                    result.push([candidates[i], ...combination]);
-                }
-            }
-        }
-        
-        memo[memoKey] = result.length > 0 ? result : null;
-        return memo[memoKey];
     }
-
-    const result = backtrack(target, 0);
-    return result === null ? [] : result;
-
-
+    memo[target]=result;
+    return memo[target];
 };
