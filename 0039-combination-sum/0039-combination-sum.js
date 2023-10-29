@@ -4,23 +4,31 @@
  * @return {number[][]}
  */
 var combinationSum = function(candidates, target,memo={}) {
-    let result=[];
-    candidates.sort((a, b) => a - b); 
-    if(target in memo) return memo[target];
-    if (target===0) return [[]];
-    if(target< 0) return [];
+    const result = [];
+    const currentCombination = [];
     
-    for(let i of candidates){
-         if (i > target) break; 
-        const reminder=target-i;
-        const reminderResult=combinationSum(candidates,reminder,memo);
-        if (reminderResult!=[]) {
-        result=result.concat(reminderResult.map(a=>[...a,i].sort((a, b) => a - b)));
-        result = Array.from(new Set(result.map(JSON.stringify))).map(JSON.parse);
-                
+    function backtrack(remaining, start) {
+        if (remaining === 0) {
        
+            result.push([...currentCombination]);
+            return;
+        }
+        
+        for (let i = start; i < candidates.length; i++) {
+     
+            if (remaining < candidates[i]) {
+                continue;
+            }
+  
+            currentCombination.push(candidates[i]);
+     
+            backtrack(remaining - candidates[i], i);
+      
+            currentCombination.pop();
         }
     }
-    memo[target]=result;
-    return memo[target];
+    
+    backtrack(target, 0);
+    return result;
+
 };
